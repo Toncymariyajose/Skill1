@@ -1,70 +1,78 @@
-# Getting Started with Create React App
+# babel-plugin-polyfill-corejs3
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Install
 
-## Available Scripts
+Using npm:
 
-In the project directory, you can run:
+```sh
+npm install --save-dev babel-plugin-polyfill-corejs3
+```
 
-### `npm start`
+or using yarn:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```sh
+yarn add babel-plugin-polyfill-corejs3 --dev
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Usage
 
-### `npm test`
+Add this plugin to your Babel configuration:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```json
+{
+  "plugins": [["polyfill-corejs3", { "method": "usage-global", "version": "3.20" }]]
+}
+```
 
-### `npm run build`
+This package supports the `usage-pure`, `usage-global`, and `entry-global` methods.
+When `entry-global` is used, it replaces imports to `core-js`.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Options
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+See [here](../../docs/usage.md#options) for a list of options supported by every polyfill provider.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### `version`
 
-### `npm run eject`
+`string`, defaults to `"3.0"`.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+This option only has an effect when used alongside `"method": "usage-global"` or `"method": "usage-pure"`. It is recommended to specify the minor version you are using as `core-js@3.0` may not include polyfills for the latest features. If you are bundling an app, you can provide the version directly from your node modules:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```js
+{
+  plugins: [
+    ["polyfill-corejs3", {
+      "method": "usage-pure",
+      // use `core-js/package.json` if you are using `usage-global`
+      "version": require("core-js-pure/package.json").version
+    }]
+  ]
+}
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+If you are a library author, specify a reasonably modern `core-js` version in your
+`package.json` and provide the plugin the minimal supported version.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```json
+{
+  "dependencies": {
+    "core-js": "^3.43.0"
+  }
+}
+```
+```js
+{
+  plugins: [
+    ["polyfill-corejs3", {
+      "method": "usage-global",
+      // improvise if you have more complicated version spec, e.g. > 3.1.4
+      "version": require("./package.json").dependencies["core-js"]
+    }]
+  ]
+}
+```
 
-## Learn More
+### `proposals`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+`boolean`, defaults to `false`.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This option only has an effect when used alongside `"method": "usage-global"` or `"method": "usage-pure"`. When `proposals` are `true`, any ES proposal supported by core-js will be polyfilled as well.
